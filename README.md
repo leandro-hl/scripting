@@ -1,0 +1,2 @@
+# scripting
+Ubuntu os scripting
