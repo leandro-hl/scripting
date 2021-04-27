@@ -1,0 +1,1 @@
+MY_FILE=processes; pgrep 'bash' >> $MY_FILE.txt | pgrep 'bash' >> $MY_FILE.txt | pgrep 'bash' >> $MY_FILE.txt | sort -r $MY_FILE.txt | uniq |  cat > result.txt | vim result.txt
