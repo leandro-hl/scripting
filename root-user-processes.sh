@@ -1,0 +1,1 @@
+ps -fea | grep '^root'
