@@ -1,5 +1,7 @@
 #!/bin/bash
 
+shopt -s globstar
+
 usage() {
 cat << EOF
 Version: V1
