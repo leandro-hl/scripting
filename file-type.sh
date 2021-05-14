@@ -1,13 +1,5 @@
 #!/bin/bash
 
-# Dado un nombre de archivo indica que tipo es.
-# Agregar manejo de n paginas.
-
-DIRECTORIO=0
-RECURSIVO=0
-ORDENADO=0
-
-
 usage() {
 cat << EOF
 Version: V1
@@ -17,6 +9,11 @@ Usage: $0 [-d directorio] [-r recursivo] [-t orden] nombre_archivo
 -t: orden alfabetico
 EOF
 }
+
+
+DIRECTORIO=0
+RECURSIVO=0
+ORDENADO=0
 
 while getopts "drtv" o; do
     case "${o}" in                
@@ -32,40 +29,50 @@ while getopts "drtv" o; do
             #   Ordenar alfabeticamente
             ORDENADO=1
             ;;
-        v)
-            #   Indica version y forma de uso
-            usage
-            exit 1;
-            ;;
         *)
-            #   Indica version y forma de uso
+            #   -v y otros ingresan aqui. Indica version y forma de uso
             usage
             exit 1;
             ;;
     esac
 done
 
+# Obtenemos el ultimo parametro ingresado (El nombre del archio o directorio)
 for last; do true; done
 LOOKUP=$last
 
 # si es directorio buscamos en todos sus hijos
 if [[ "$DIRECTORIO" -eq 1  ]]; then
     echo "Nombre directorio: $LOOKUP";
-    grilla="$archivo $EXTENSION $PERMISOS"
+    echo "Nombre Archivo      Tipo    Usr Dueño   Grp Dueño   Tamaño"
+
+    GRILLA="$archivo $EXTENSION $PERMISOS"
 else
     echo "Nombre: $LOOKUP"
-    grilla="$EXTENSION $PERMISOS"
+    echo "Tipo Archivo    Usr Dueño   Grp Dueño   Tamaño"
+
+    GRILLA="$EXTENSION $PERMISOS"
 fi
 
-[[ "$RECURSIVO" -eq 1  ]] && params+=(-R)
-[[ "$ORDENADO" -eq 1  ]] && params+=(--sort)
+if [ "$DIRECTORIO" -eq 1 ] && [ "$RECURSIVO" -eq 1 ]; then
+    #si el lookup es un directorio y no es recursivo: $LOOKUP/*
+    COMMAND="$LOOKUP/*"
+elif [ "$DIRECTORIO" -eq 1 ] && [ "$RECURSIVO" -eq 0 ]; then
+    #si el lookup es un directorio y es recursivo $LOOKUP/**
+    COMMAND="$LOOKUP/**"
+elif [ "$DIRECTORIO" -eq 0 ] && [ "$RECURSIVO" -eq 1 ]; then
+    #si el lookup no es un directorio y es recursivo: **/file
+    COMMAND="**/$LOOKUP"
+else
+    #si el lookup no es un directorio y no es recursivo: file
+    COMMAND="$LOOKUP"
+fi
 
-for archivo in `ls -1 "${params[@]}" $LOOKUP`; do
-    EXTENSION= file $archivo | awk '{$1=""; printf "%s%s", substr($0,1,10), "\t"}'
-    PERMISOS= ls -l $archivo | awk '{for(x=3; x<= 5; x++){ printf "%s%s", substr($x,1,10), "\t"}}'
+for archivo in $COMMAND; do
+    EXTENSION= file $archivo | awk '{$1=""; printf "%s%s", substr($0,1,20), "\t"}'
+    PERMISOS= ls -l $archivo | awk '{for(x=3; x<= 5; x++){ printf "%s%s", substr($x,1,20), "\t"}}'
 
-    echo $grilla
+    echo $GRILLA
 done
-
 
 echo "DIR ${DIRECTORIO} REC ${RECURSIVO} ORD ${ORDENADO} ${ARCHIVO}"
