@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Dependencia para usar recursividad con glob. 
+# TODO ver si se puede hacer condicionalmente para no tener que 
+# ejecutar esta linea siempre que se ejecuta el comando
+# deberia ser solo la primera vez.
 shopt -s globstar
 
 usage() {
