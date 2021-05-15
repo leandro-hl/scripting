@@ -1,9 +1,6 @@
 #!/bin/bash
 
-# Dependencia para usar recursividad con glob. 
-# TODO ver si se puede hacer condicionalmente para no tener que 
-# ejecutar esta linea siempre que se ejecuta el comando
-# deberia ser solo la primera vez.
+# Dependencia para usar recursividad con glob.
 shopt -s globstar
 
 usage() {
@@ -51,21 +48,17 @@ LOOKUP=$last
 if [[ "$DIRECTORIO" -eq 1  ]]; then
     echo "Nombre directorio: $LOOKUP";
     echo "Nombre Archivo      Tipo    Usr Dueño   Grp Dueño   Tamaño"
-
-    GRILLA="$archivo $EXTENSION $PERMISOS"
 else
     echo "Nombre: $LOOKUP"
     echo "Tipo Archivo    Usr Dueño   Grp Dueño   Tamaño"
-
-    GRILLA="$EXTENSION $PERMISOS"
 fi
 
 if [ "$DIRECTORIO" -eq 1 ] && [ "$RECURSIVO" -eq 1 ]; then
-    #si el lookup es un directorio y no es recursivo: $LOOKUP/*
-    COMMAND="$LOOKUP/*"
-elif [ "$DIRECTORIO" -eq 1 ] && [ "$RECURSIVO" -eq 0 ]; then
-    #si el lookup es un directorio y es recursivo $LOOKUP/**
+    #si el lookup es un directorio y es recursivo: $LOOKUP/**
     COMMAND="$LOOKUP/**"
+elif [ "$DIRECTORIO" -eq 1 ] && [ "$RECURSIVO" -eq 0 ]; then
+    #si el lookup es un directorio y no es recursivo $LOOKUP/*
+    COMMAND="$LOOKUP/*"
 elif [ "$DIRECTORIO" -eq 0 ] && [ "$RECURSIVO" -eq 1 ]; then
     #si el lookup no es un directorio y es recursivo: **/file
     COMMAND="**/$LOOKUP"
@@ -75,10 +68,12 @@ else
 fi
 
 for archivo in $COMMAND; do
-    EXTENSION= file $archivo | awk '{$1=""; printf "%s%s", substr($0,1,20), "\t"}'
-    PERMISOS= ls -l $archivo | awk '{for(x=3; x<= 5; x++){ printf "%s%s", substr($x,1,20), "\t"}}'
+    EXTENSION= file $archivo | awk '{$1=""; printf "%s%s", substr($0,1,10), "\t"}'
+    PERMISOS= ls -l $archivo | awk '{for(x=3; x<= 5; x++){ printf "%s%s", substr($x,1,10), "\t"}}'
 
-    echo $GRILLA
+    if [[ "$DIRECTORIO" -eq 1  ]]; then
+        echo "$archivo $EXTENSION $PERMISOS"
+    else
+        echo "$EXTENSION $PERMISOS"
+    fi
 done
-
-echo "DIR ${DIRECTORIO} REC ${RECURSIVO} ORD ${ORDENADO} ${ARCHIVO}"
